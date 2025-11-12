@@ -76,3 +76,6 @@ trivy-*.json
 tmp/
 temp/
 *.tmp
+
+# Personal files (not for public repo)
+personal/
