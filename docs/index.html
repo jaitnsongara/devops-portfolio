@@ -20,6 +20,7 @@
                 <li><a href="#about">About</a></li>
                 <li><a href="#skills">Skills</a></li>
                 <li><a href="#projects">Projects</a></li>
+                <li><a href="#case-studies">Case Studies</a></li>
                 <li><a href="#experience">Experience</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
@@ -237,6 +238,215 @@
         </div>
     </section>
 
+    <!-- Case Studies Section -->
+    <section id="case-studies" class="case-studies">
+        <div class="container">
+            <h2 class="section-title">Case Studies & Technical Deep Dives</h2>
+            <p class="case-studies-intro">
+                Detailed explanations of real-world DevOps implementations, architectural decisions, 
+                and measurable business impact. Each case study demonstrates problem-solving approach, 
+                technical expertise, and results-driven execution.
+            </p>
+            
+            <div class="case-studies-grid">
+                <!-- Terraform Case Study -->
+                <div class="case-study-card">
+                    <div class="case-study-header">
+                        <div class="case-study-icon"><i class="fas fa-code"></i></div>
+                        <h3>AWS Multi-Tier Infrastructure</h3>
+                        <span class="case-study-tag">Infrastructure as Code</span>
+                    </div>
+                    <div class="case-study-content">
+                        <h4>The Challenge</h4>
+                        <p>Manual infrastructure provisioning taking 2-3 days, inconsistent environments, no version control, frequent configuration errors.</p>
+                        
+                        <h4>The Solution</h4>
+                        <p>Implemented Infrastructure as Code using Terraform with:</p>
+                        <ul>
+                            <li>3-tier VPC architecture (public, private, database subnets)</li>
+                            <li>Remote state management with S3 and DynamoDB</li>
+                            <li>Reusable modules for consistency</li>
+                            <li>Automated security group configuration</li>
+                        </ul>
+                        
+                        <h4>Results</h4>
+                        <div class="case-study-metrics">
+                            <div class="metric">
+                                <span class="metric-value">70%</span>
+                                <span class="metric-label">Faster Provisioning</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">100%</span>
+                                <span class="metric-label">Consistency</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">$1,100</span>
+                                <span class="metric-label">Saved per Deploy</span>
+                            </div>
+                        </div>
+                        
+                        <div class="case-study-tech">
+                            <strong>Technologies:</strong> Terraform, AWS (VPC, EC2, RDS, S3), Git
+                        </div>
+                    </div>
+                    <a href="https://github.com/jaitnsongara/devops-portfolio/blob/main/case-studies/01-terraform-aws-infrastructure.md" 
+                       class="case-study-link" target="_blank">
+                        Read Full Case Study <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Kubernetes Case Study -->
+                <div class="case-study-card">
+                    <div class="case-study-header">
+                        <div class="case-study-icon"><i class="fas fa-dharmachakra"></i></div>
+                        <h3>Kubernetes Microservices Platform</h3>
+                        <span class="case-study-tag">Container Orchestration</span>
+                    </div>
+                    <div class="case-study-content">
+                        <h4>The Challenge</h4>
+                        <p>Monolithic application couldn't scale, 4-hour deployments with downtime, manual scaling taking 30+ minutes, unable to handle traffic spikes.</p>
+                        
+                        <h4>The Solution</h4>
+                        <p>Migrated to Kubernetes-based microservices with:</p>
+                        <ul>
+                            <li>Horizontal Pod Autoscaling (3-10 pods based on CPU/Memory)</li>
+                            <li>Zero-downtime rolling updates</li>
+                            <li>StatefulSets for database high availability</li>
+                            <li>Prometheus + Grafana monitoring</li>
+                        </ul>
+                        
+                        <h4>Results</h4>
+                        <div class="case-study-metrics">
+                            <div class="metric">
+                                <span class="metric-value">99.9%</span>
+                                <span class="metric-label">Uptime</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">10x</span>
+                                <span class="metric-label">Traffic Handling</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">5 min</span>
+                                <span class="metric-label">Deployment Time</span>
+                            </div>
+                        </div>
+                        
+                        <div class="case-study-tech">
+                            <strong>Technologies:</strong> Kubernetes, Docker, Helm, GKE, Prometheus, Grafana
+                        </div>
+                    </div>
+                    <a href="https://github.com/jaitnsongara/devops-portfolio/blob/main/case-studies/04-kubernetes-microservices.md" 
+                       class="case-study-link" target="_blank">
+                        Read Full Case Study <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- CI/CD Case Study -->
+                <div class="case-study-card">
+                    <div class="case-study-header">
+                        <div class="case-study-icon"><i class="fas fa-sync-alt"></i></div>
+                        <h3>Complete CI/CD Pipeline</h3>
+                        <span class="case-study-tag">Automation</span>
+                    </div>
+                    <div class="case-study-content">
+                        <h4>The Challenge</h4>
+                        <p>Manual deployments taking 4+ hours, no automated testing, frequent production issues, weekend-only deployments.</p>
+                        
+                        <h4>The Solution</h4>
+                        <p>Built end-to-end CI/CD pipeline with:</p>
+                        <ul>
+                            <li>Automated testing (unit, integration, e2e)</li>
+                            <li>Security scanning (SAST, dependency, container)</li>
+                            <li>Docker image optimization</li>
+                            <li>Kubernetes rolling deployments</li>
+                            <li>Automated rollback on failure</li>
+                        </ul>
+                        
+                        <h4>Results</h4>
+                        <div class="case-study-metrics">
+                            <div class="metric">
+                                <span class="metric-value">95%</span>
+                                <span class="metric-label">Faster Deploys</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">0</span>
+                                <span class="metric-label">Incidents (6mo)</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">3x</span>
+                                <span class="metric-label">Deploy Frequency</span>
+                            </div>
+                        </div>
+                        
+                        <div class="case-study-tech">
+                            <strong>Technologies:</strong> Jenkins, Docker, Trivy, SonarQube, Kubernetes
+                        </div>
+                    </div>
+                    <a href="https://github.com/jaitnsongara/devops-portfolio/tree/main/cicd" 
+                       class="case-study-link" target="_blank">
+                        View Implementation <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- DevSecOps Case Study -->
+                <div class="case-study-card">
+                    <div class="case-study-header">
+                        <div class="case-study-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3>DevSecOps Security Automation</h3>
+                        <span class="case-study-tag">Security</span>
+                    </div>
+                    <div class="case-study-content">
+                        <h4>The Challenge</h4>
+                        <p>Security vulnerabilities discovered in production, manual security reviews, no visibility into security posture.</p>
+                        
+                        <h4>The Solution</h4>
+                        <p>Implemented comprehensive security scanning:</p>
+                        <ul>
+                            <li>Dependency vulnerability scanning</li>
+                            <li>Static code analysis (SAST)</li>
+                            <li>Container image scanning with Trivy</li>
+                            <li>Infrastructure as Code security checks</li>
+                            <li>Automated reporting and alerting</li>
+                        </ul>
+                        
+                        <h4>Results</h4>
+                        <div class="case-study-metrics">
+                            <div class="metric">
+                                <span class="metric-value">85%</span>
+                                <span class="metric-label">Fewer Vulnerabilities</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">100%</span>
+                                <span class="metric-label">Scan Coverage</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-value">Early</span>
+                                <span class="metric-label">Issue Detection</span>
+                            </div>
+                        </div>
+                        
+                        <div class="case-study-tech">
+                            <strong>Technologies:</strong> Trivy, SonarQube, OWASP, tfsec, Falco
+                        </div>
+                    </div>
+                    <a href="https://github.com/jaitnsongara/devops-portfolio/tree/main/devsecops" 
+                       class="case-study-link" target="_blank">
+                        View Implementation <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="case-studies-cta">
+                <h3>Want to Learn More?</h3>
+                <p>View the complete technical documentation and implementation details</p>
+                <a href="https://github.com/jaitnsongara/devops-portfolio/tree/main/case-studies" 
+                   class="btn btn-primary" target="_blank">
+                    <i class="fas fa-book"></i> View All Case Studies
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Experience Section -->
     <section id="experience" class="experience">
         <div class="container">
@@ -317,7 +527,7 @@
                         <h3>Phone</h3>
                         <p>+91 8302277974</p>
                     </a>
-                    <a href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank" class="contact-card">
+                    <a href="https://www.linkedin.com/in/jatin-songara-430245146/" target="_blank" class="contact-card">
                         <i class="fab fa-linkedin"></i>
                         <h3>LinkedIn</h3>
                         <p>Connect with me</p>
