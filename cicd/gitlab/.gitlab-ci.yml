@@ -1,0 +1,216 @@
+# GitLab CI/CD Pipeline
+# Author: Jatin Songara
+# Description: Complete CI/CD pipeline with multi-stage deployment
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_NAME: $CI_REGISTRY_IMAGE
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  KUBERNETES_VERSION: "1.28"
+
+stages:
+  - build
+  - test
+  - security
+  - package
+  - deploy-staging
+  - deploy-production
+
+# Templates
+.docker_template: &docker_template
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+.kubectl_template: &kubectl_template
+  image: bitnami/kubectl:$KUBERNETES_VERSION
+  before_script:
+    - kubectl config use-context $KUBE_CONTEXT
+
+# Build Stage
+build:
+  stage: build
+  image: node:18-alpine
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  script:
+    - echo "📦 Installing dependencies..."
+    - npm ci
+    - echo "🔨 Building application..."
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+      - node_modules/
+    expire_in: 1 hour
+  only:
+    - branches
+    - tags
+
+# Test Stage
+unit-tests:
+  stage: test
+  image: node:18-alpine
+  dependencies:
+    - build
+  script:
+    - echo "🧪 Running unit tests..."
+    - npm run test:unit -- --coverage
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      junit: test-results/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+  only:
+    - branches
+    - merge_requests
+
+integration-tests:
+  stage: test
+  image: node:18-alpine
+  services:
+    - postgres:15-alpine
+    - redis:7-alpine
+  variables:
+    POSTGRES_DB: testdb
+    POSTGRES_USER: testuser
+    POSTGRES_PASSWORD: testpass
+    DATABASE_URL: postgresql://testuser:testpass@postgres:5432/testdb
+    REDIS_URL: redis://redis:6379
+  dependencies:
+    - build
+  script:
+    - echo "🔗 Running integration tests..."
+    - npm run test:integration
+  only:
+    - branches
+    - merge_requests
+
+# Security Stage
+dependency-scanning:
+  stage: security
+  image: node:18-alpine
+  script:
+    - echo "🔍 Scanning dependencies..."
+    - npm audit --audit-level=moderate
+  allow_failure: true
+  only:
+    - branches
+    - merge_requests
+
+sast:
+  stage: security
+  image: returntocorp/semgrep
+  script:
+    - echo "🛡️ Running SAST..."
+    - semgrep --config=auto --json --output=semgrep-report.json .
+  artifacts:
+    reports:
+      sast: semgrep-report.json
+  allow_failure: true
+  only:
+    - branches
+    - merge_requests
+
+# Package Stage
+docker-build:
+  stage: package
+  <<: *docker_template
+  script:
+    - echo "🐳 Building Docker image..."
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+    - echo "📤 Pushing to registry..."
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:latest
+  only:
+    - main
+    - tags
+
+container-scanning:
+  stage: package
+  image: aquasec/trivy:latest
+  dependencies:
+    - docker-build
+  script:
+    - echo "🔒 Scanning container image..."
+    - trivy image --severity HIGH,CRITICAL $IMAGE_NAME:$IMAGE_TAG
+  allow_failure: true
+  only:
+    - main
+    - tags
+
+# Deploy Staging
+deploy-staging:
+  stage: deploy-staging
+  <<: *kubectl_template
+  environment:
+    name: staging
+    url: https://staging.jatinsongara.com
+    on_stop: stop-staging
+  script:
+    - echo "🚀 Deploying to staging..."
+    - |
+      kubectl set image deployment/demo-app \
+        demo-app=$IMAGE_NAME:$IMAGE_TAG \
+        -n staging
+    - kubectl rollout status deployment/demo-app -n staging --timeout=5m
+    - echo "✅ Staging deployment complete"
+  only:
+    - main
+
+stop-staging:
+  stage: deploy-staging
+  <<: *kubectl_template
+  environment:
+    name: staging
+    action: stop
+  script:
+    - kubectl scale deployment/demo-app --replicas=0 -n staging
+  when: manual
+  only:
+    - main
+
+# Deploy Production
+deploy-production:
+  stage: deploy-production
+  <<: *kubectl_template
+  environment:
+    name: production
+    url: https://jatinsongara.com
+  script:
+    - echo "🚀 Deploying to production..."
+    - |
+      kubectl set image deployment/demo-app \
+        demo-app=$IMAGE_NAME:$IMAGE_TAG \
+        -n production
+    - kubectl rollout status deployment/demo-app -n production --timeout=10m
+    - echo "✅ Production deployment complete"
+  when: manual
+  only:
+    - main
+    - tags
+
+# Rollback
+rollback-production:
+  stage: deploy-production
+  <<: *kubectl_template
+  environment:
+    name: production
+  script:
+    - echo "⏪ Rolling back production deployment..."
+    - kubectl rollout undo deployment/demo-app -n production
+    - kubectl rollout status deployment/demo-app -n production --timeout=5m
+    - echo "✅ Rollback complete"
+  when: manual
+  only:
+    - main

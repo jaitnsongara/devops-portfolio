@@ -1,0 +1,229 @@
+---
+# Ansible Playbook for Web Server Setup
+# Author: Jatin Songara
+# Description: Complete web server configuration with security hardening
+
+- name: Configure Web Servers
+  hosts: webservers
+  become: yes
+  vars:
+    app_user: webapp
+    app_directory: /var/www/app
+    nginx_version: "1.24"
+    node_version: "18"
+    
+  tasks:
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+      tags: [system]
+
+    - name: Install required packages
+      apt:
+        name:
+          - nginx
+          - ufw
+          - fail2ban
+          - certbot
+          - python3-certbot-nginx
+        state: present
+      tags: [packages]
+
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        shell: /bin/bash
+        create_home: yes
+        state: present
+      tags: [users]
+
+    - name: Create application directory
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+      tags: [filesystem]
+
+    - name: Configure UFW firewall
+      block:
+        - name: Allow SSH
+          ufw:
+            rule: allow
+            port: '22'
+            proto: tcp
+
+        - name: Allow HTTP
+          ufw:
+            rule: allow
+            port: '80'
+            proto: tcp
+
+        - name: Allow HTTPS
+          ufw:
+            rule: allow
+            port: '443'
+            proto: tcp
+
+        - name: Enable UFW
+          ufw:
+            state: enabled
+            policy: deny
+      tags: [firewall]
+
+    - name: Configure Nginx
+      block:
+        - name: Remove default site
+          file:
+            path: /etc/nginx/sites-enabled/default
+            state: absent
+
+        - name: Copy Nginx configuration
+          template:
+            src: templates/nginx.conf.j2
+            dest: /etc/nginx/sites-available/app
+            owner: root
+            group: root
+            mode: '0644'
+          notify: Reload Nginx
+
+        - name: Enable site
+          file:
+            src: /etc/nginx/sites-available/app
+            dest: /etc/nginx/sites-enabled/app
+            state: link
+          notify: Reload Nginx
+
+        - name: Test Nginx configuration
+          command: nginx -t
+          changed_when: false
+      tags: [nginx]
+
+    - name: Configure fail2ban
+      block:
+        - name: Copy fail2ban jail configuration
+          template:
+            src: templates/jail.local.j2
+            dest: /etc/fail2ban/jail.local
+            owner: root
+            group: root
+            mode: '0644'
+          notify: Restart fail2ban
+
+        - name: Ensure fail2ban is running
+          service:
+            name: fail2ban
+            state: started
+            enabled: yes
+      tags: [security]
+
+    - name: Setup SSL with Let's Encrypt
+      block:
+        - name: Check if certificate exists
+          stat:
+            path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+          register: cert_exists
+
+        - name: Obtain SSL certificate
+          command: >
+            certbot --nginx -d {{ domain_name }}
+            --non-interactive --agree-tos
+            --email {{ admin_email }}
+          when: not cert_exists.stat.exists
+
+        - name: Setup certificate renewal cron
+          cron:
+            name: "Renew Let's Encrypt certificates"
+            minute: "0"
+            hour: "3"
+            job: "certbot renew --quiet --post-hook 'systemctl reload nginx'"
+      when: domain_name is defined
+      tags: [ssl]
+
+    - name: Configure system security
+      block:
+        - name: Disable root login
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            regexp: '^PermitRootLogin'
+            line: 'PermitRootLogin no'
+          notify: Restart SSH
+
+        - name: Disable password authentication
+          lineinfile:
+            path: /etc/ssh/sshd_config
+            regexp: '^PasswordAuthentication'
+            line: 'PasswordAuthentication no'
+          notify: Restart SSH
+
+        - name: Set up automatic security updates
+          apt:
+            name: unattended-upgrades
+            state: present
+      tags: [security, hardening]
+
+    - name: Install Node.js
+      block:
+        - name: Add NodeSource repository
+          shell: |
+            curl -fsSL https://deb.nodesource.com/setup_{{ node_version }}.x | bash -
+          args:
+            creates: /etc/apt/sources.list.d/nodesource.list
+
+        - name: Install Node.js
+          apt:
+            name: nodejs
+            state: present
+            update_cache: yes
+
+        - name: Install PM2 globally
+          npm:
+            name: pm2
+            global: yes
+            state: present
+      tags: [nodejs]
+
+    - name: Configure log rotation
+      copy:
+        dest: /etc/logrotate.d/webapp
+        content: |
+          {{ app_directory }}/logs/*.log {
+              daily
+              rotate 14
+              compress
+              delaycompress
+              notifempty
+              create 0640 {{ app_user }} {{ app_user }}
+              sharedscripts
+              postrotate
+                  systemctl reload nginx > /dev/null 2>&1 || true
+              endscript
+          }
+        owner: root
+        group: root
+        mode: '0644'
+      tags: [logging]
+
+  handlers:
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted
+
+    - name: Restart SSH
+      service:
+        name: sshd
+        state: restarted

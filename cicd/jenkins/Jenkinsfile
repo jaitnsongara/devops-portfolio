@@ -1,0 +1,292 @@
+// Jenkins Pipeline for CI/CD
+// Author: Jatin Songara
+// Description: Complete CI/CD pipeline with testing, security scanning, and deployment
+
+pipeline {
+    agent any
+    
+    environment {
+        // Docker Configuration
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
+        IMAGE_NAME = 'jatinsongara/demo-app'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        
+        // Kubernetes Configuration
+        K8S_NAMESPACE = 'production'
+        K8S_DEPLOYMENT = 'demo-app'
+        
+        // SonarQube Configuration
+        SONAR_HOST = 'https://sonarqube.example.com'
+        SONAR_TOKEN = credentials('sonarqube-token')
+        
+        // Notification
+        SLACK_CHANNEL = '#deployments'
+    }
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    echo "🔄 Checking out code..."
+                    checkout scm
+                    
+                    // Get commit information
+                    env.GIT_COMMIT_MSG = sh(
+                        script: 'git log -1 --pretty=%B',
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_AUTHOR = sh(
+                        script: 'git log -1 --pretty=%an',
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        
+        stage('Environment Setup') {
+            steps {
+                script {
+                    echo "🔧 Setting up environment..."
+                    sh '''
+                        node --version
+                        npm --version
+                        docker --version
+                        kubectl version --client
+                    '''
+                }
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    echo "📦 Installing dependencies..."
+                    sh 'npm ci'
+                }
+            }
+        }
+        
+        stage('Code Quality Analysis') {
+            parallel {
+                stage('Linting') {
+                    steps {
+                        script {
+                            echo "🔍 Running linter..."
+                            sh 'npm run lint || true'
+                        }
+                    }
+                }
+                
+                stage('SonarQube Analysis') {
+                    steps {
+                        script {
+                            echo "📊 Running SonarQube analysis..."
+                            withSonarQubeEnv('SonarQube') {
+                                sh '''
+                                    sonar-scanner \
+                                        -Dsonar.projectKey=demo-app \
+                                        -Dsonar.sources=. \
+                                        -Dsonar.host.url=${SONAR_HOST} \
+                                        -Dsonar.login=${SONAR_TOKEN}
+                                '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Unit Tests') {
+            steps {
+                script {
+                    echo "🧪 Running unit tests..."
+                    sh 'npm test -- --coverage'
+                }
+            }
+            post {
+                always {
+                    junit 'test-results/**/*.xml'
+                    publishHTML([
+                        reportDir: 'coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ])
+                }
+            }
+        }
+        
+        stage('Security Scanning') {
+            parallel {
+                stage('Dependency Check') {
+                    steps {
+                        script {
+                            echo "🔒 Checking dependencies for vulnerabilities..."
+                            sh 'npm audit --audit-level=moderate || true'
+                        }
+                    }
+                }
+                
+                stage('Trivy Scan') {
+                    steps {
+                        script {
+                            echo "🛡️ Running Trivy security scan..."
+                            sh '''
+                                trivy fs --severity HIGH,CRITICAL \
+                                    --format json \
+                                    --output trivy-report.json \
+                                    .
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo "🐳 Building Docker image..."
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                    docker.build("${IMAGE_NAME}:latest")
+                }
+            }
+        }
+        
+        stage('Container Security Scan') {
+            steps {
+                script {
+                    echo "🔍 Scanning Docker image..."
+                    sh """
+                        trivy image --severity HIGH,CRITICAL \
+                            --format json \
+                            --output trivy-image-report.json \
+                            ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+        
+        stage('Push to Registry') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "📤 Pushing image to registry..."
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-hub-credentials') {
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                        docker.image("${IMAGE_NAME}:latest").push()
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Kubernetes') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "🚀 Deploying to Kubernetes..."
+                    
+                    // Update deployment with new image
+                    sh """
+                        kubectl set image deployment/${K8S_DEPLOYMENT} \
+                            ${K8S_DEPLOYMENT}=${IMAGE_NAME}:${IMAGE_TAG} \
+                            -n ${K8S_NAMESPACE}
+                        
+                        kubectl rollout status deployment/${K8S_DEPLOYMENT} \
+                            -n ${K8S_NAMESPACE} \
+                            --timeout=5m
+                    """
+                }
+            }
+        }
+        
+        stage('Smoke Tests') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    echo "💨 Running smoke tests..."
+                    sh '''
+                        # Wait for deployment to be ready
+                        sleep 10
+                        
+                        # Get service endpoint
+                        ENDPOINT=$(kubectl get svc ${K8S_DEPLOYMENT} \
+                            -n ${K8S_NAMESPACE} \
+                            -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                        
+                        # Health check
+                        curl -f http://${ENDPOINT}/health || exit 1
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            script {
+                echo "✅ Pipeline completed successfully!"
+                
+                // Send Slack notification
+                slackSend(
+                    channel: env.SLACK_CHANNEL,
+                    color: 'good',
+                    message: """
+                        ✅ Deployment Successful
+                        Job: ${env.JOB_NAME}
+                        Build: #${env.BUILD_NUMBER}
+                        Commit: ${env.GIT_COMMIT_MSG}
+                        Author: ${env.GIT_AUTHOR}
+                        Duration: ${currentBuild.durationString}
+                    """
+                )
+            }
+        }
+        
+        failure {
+            script {
+                echo "❌ Pipeline failed!"
+                
+                // Send Slack notification
+                slackSend(
+                    channel: env.SLACK_CHANNEL,
+                    color: 'danger',
+                    message: """
+                        ❌ Deployment Failed
+                        Job: ${env.JOB_NAME}
+                        Build: #${env.BUILD_NUMBER}
+                        Commit: ${env.GIT_COMMIT_MSG}
+                        Author: ${env.GIT_AUTHOR}
+                        Check: ${env.BUILD_URL}
+                    """
+                )
+            }
+        }
+        
+        always {
+            script {
+                // Clean up
+                sh 'docker system prune -f || true'
+                
+                // Archive artifacts
+                archiveArtifacts artifacts: '**/trivy*.json', allowEmptyArchive: true
+                
+                // Clean workspace
+                cleanWs()
+            }
+        }
+    }
+}
