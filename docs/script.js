@@ -12,24 +12,55 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Mobile menu toggle
+// Mobile menu toggle - Consolidated
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
-if (hamburger) {
-    hamburger.addEventListener('click', () => {
+if (hamburger && navMenu) {
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isActive = navMenu.classList.contains('active');
+        
         navMenu.classList.toggle('active');
         hamburger.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (!isActive) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        }
+    });
+    
+    // Close menu when clicking a link
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            hamburger.classList.remove('active');
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (navMenu.classList.contains('active') && 
+            !navMenu.contains(e.target) && 
+            !hamburger.contains(e.target)) {
+            navMenu.classList.remove('active');
+            hamburger.classList.remove('active');
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        }
     });
 }
-
-// Close mobile menu when clicking on a link
-document.querySelectorAll('.nav-menu a').forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-        hamburger.classList.remove('active');
-    });
-});
 
 // Navbar background on scroll with shadow
 window.addEventListener('scroll', () => {
@@ -115,34 +146,9 @@ const createScrollToTopButton = () => {
 // Initialize scroll to top button
 createScrollToTopButton();
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    const navbar = document.querySelector('.navbar');
-    const isClickInsideNav = navbar.contains(e.target);
-    
-    if (!isClickInsideNav && navMenu.classList.contains('active')) {
-        navMenu.classList.remove('active');
-        hamburger.classList.remove('active');
-    }
-});
+// Removed duplicate close menu code - already handled in consolidated menu code above
 
-// Prevent body scroll when mobile menu is open
-if (hamburger) {
-    hamburger.addEventListener('click', () => {
-        if (navMenu.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-    });
-}
-
-// Close menu and restore scroll when link is clicked
-document.querySelectorAll('.nav-menu a').forEach(link => {
-    link.addEventListener('click', () => {
-        document.body.style.overflow = '';
-    });
-});
+// Removed duplicate hamburger menu code - consolidated above
 
 // Lazy loading for images (if any are added)
 if ('IntersectionObserver' in window) {
@@ -384,51 +390,7 @@ document.querySelectorAll('.hire-me-btn').forEach(btn => {
     });
 });
 
-// Enhanced Mobile Menu with Better Animation
-if (hamburger && navMenu) {
-    hamburger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isActive = navMenu.classList.contains('active');
-        
-        navMenu.classList.toggle('active');
-        hamburger.classList.toggle('active');
-        
-        // Prevent body scroll when menu is open
-        if (!isActive) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-        } else {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-        }
-    });
-    
-    // Close menu when clicking a link
-    document.querySelectorAll('.nav-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            hamburger.classList.remove('active');
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-        });
-    });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (navMenu.classList.contains('active') && 
-            !navMenu.contains(e.target) && 
-            !hamburger.contains(e.target)) {
-            navMenu.classList.remove('active');
-            hamburger.classList.remove('active');
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-        }
-    });
-}
+// Removed duplicate hamburger menu code - consolidated at top of file
 
 // Add ripple animation CSS dynamically
 const style = document.createElement('style');
