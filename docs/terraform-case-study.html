@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Terraform AWS Infrastructure Case Study - 70% faster provisioning">
+    <title>Terraform Case Study | DevOps Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">Jatin Songara</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="case-studies.html">Case Studies</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Case Study Header -->
+    <section class="case-study-header">
+        <div class="container">
+            <a href="case-studies.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Case Studies</a>
+            <span class="case-study-badge">Infrastructure as Code</span>
+            <h1>AWS Multi-Tier Infrastructure with Terraform</h1>
+            <p class="case-study-subtitle">Automated infrastructure provisioning reducing deployment time by 70%</p>
+            
+            <div class="case-study-meta">
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Duration: 4 weeks</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-users"></i>
+                    <span>Team: 1 DevOps, 3 Developers</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-code"></i>
+                    <span>Terraform, AWS, Git</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Executive Summary -->
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <div class="summary-box">
+                <h2>Executive Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Challenge</h3>
+                        <p>Manual infrastructure provisioning taking 2-3 days, inconsistent environments, no version control</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Solution</h3>
+                        <p>Implemented Infrastructure as Code using Terraform with remote state management</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Result</h3>
+                        <p>70% faster provisioning, 100% consistency, zero configuration drift</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Problem -->
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-exclamation-triangle"></i> The Business Problem</h2>
+            
+            <div class="problem-list">
+                <div class="problem-item">
+                    <div class="problem-icon"><i class="fas fa-clock"></i></div>
+                    <div class="problem-content">
+                        <h3>Slow Provisioning</h3>
+                        <p>Setting up new environments took 2-3 days of manual work</p>
+                    </div>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-icon"><i class="fas fa-bug"></i></div>
+                    <div class="problem-content">
+                        <h3>Human Errors</h3>
+                        <p>Manual configuration led to frequent mistakes and inconsistencies</p>
+                    </div>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-icon"><i class="fas fa-random"></i></div>
+                    <div class="problem-content">
+                        <h3>Environment Drift</h3>
+                        <p>Dev, staging, and production environments were different</p>
+                    </div>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-icon"><i class="fas fa-undo"></i></div>
+                    <div class="problem-content">
+                        <h3>No Rollback</h3>
+                        <p>Reverting infrastructure changes was nearly impossible</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="impact-box">
+                <h3>Business Impact</h3>
+                <ul>
+                    <li>Delayed feature releases</li>
+                    <li>Increased operational costs</li>
+                    <li>Higher risk of outages</li>
+                    <li>Developer frustration</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Solution -->
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <h2><i class="fas fa-lightbulb"></i> The Solution</h2>
+            
+            <div class="architecture-diagram">
+                <h3>Architecture Overview</h3>
+                <div class="diagram-box">
+                    <pre class="architecture-ascii">
+┌─────────────────────────────────────────────────────────┐
+│                      AWS Cloud                          │
+│                                                         │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │              VPC (10.0.0.0/16)                   │  │
+│  │                                                  │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐     │  │
+│  │  │  Public  │  │ Private  │  │ Database │     │  │
+│  │  │  Subnet  │  │  Subnet  │  │  Subnet  │     │  │
+│  │  │          │  │          │  │          │     │  │
+│  │  │ • ALB    │  │ • EC2    │  │ • RDS    │     │  │
+│  │  │ • NAT GW │  │ • App    │  │ • Multi-AZ│    │  │
+│  │  └──────────┘  └──────────┘  └──────────┘     │  │
+│  │                                                  │  │
+│  │  Internet Gateway                                │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                         │
+│  Supporting Services: S3, CloudWatch, IAM              │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│          Terraform State Management                     │
+│  S3 (State) ←→ DynamoDB (Lock) ←→ KMS (Encryption)    │
+└─────────────────────────────────────────────────────────┘
+                    </pre>
+                </div>
+            </div>
+
+            <div class="solution-features">
+                <h3>Key Components</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-network-wired"></i>
+                        <h4>Network Layer</h4>
+                        <p>3-tier VPC with public, private, and database subnets across multiple AZs</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-server"></i>
+                        <h4>Compute Layer</h4>
+                        <p>EC2 instances with Auto Scaling Groups and Application Load Balancer</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-database"></i>
+                        <h4>Database Layer</h4>
+                        <p>RDS with Multi-AZ deployment and automated backups</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-lock"></i>
+                        <h4>Security Layer</h4>
+                        <p>Security Groups, NACLs, IAM roles, and encryption</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation -->
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-code"></i> Implementation Highlights</h2>
+            
+            <div class="code-example">
+                <h3>VPC Configuration</h3>
+                <pre><code>resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "${var.project_name}-vpc"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}</code></pre>
+            </div>
+
+            <div class="code-example">
+                <h3>Remote State Backend</h3>
+                <pre><code>terraform {
+  backend "s3" {
+    bucket         = "company-terraform-state"
+    key            = "prod/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-state-lock"
+  }
+}</code></pre>
+            </div>
+
+            <div class="implementation-phases">
+                <h3>Implementation Timeline</h3>
+                <div class="timeline-horizontal">
+                    <div class="timeline-item-h">
+                        <div class="timeline-marker">1</div>
+                        <h4>Week 1</h4>
+                        <p>Planning & Design</p>
+                    </div>
+                    <div class="timeline-item-h">
+                        <div class="timeline-marker">2</div>
+                        <h4>Week 2</h4>
+                        <p>Core Infrastructure</p>
+                    </div>
+                    <div class="timeline-item-h">
+                        <div class="timeline-marker">3</div>
+                        <h4>Week 3</h4>
+                        <p>Security & State</p>
+                    </div>
+                    <div class="timeline-item-h">
+                        <div class="timeline-marker">4</div>
+                        <h4>Week 4</h4>
+                        <p>Testing & Validation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <h2><i class="fas fa-chart-line"></i> Results & Impact</h2>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="result-value">70%</div>
+                    <div class="result-label">Faster Provisioning</div>
+                    <div class="result-detail">3 days → 4 hours</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="result-value">100%</div>
+                    <div class="result-label">Consistency</div>
+                    <div class="result-detail">Zero configuration drift</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="result-value">$1,100</div>
+                    <div class="result-label">Saved per Deploy</div>
+                    <div class="result-detail">92% cost reduction</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-undo"></i></div>
+                    <div class="result-value">15 min</div>
+                    <div class="result-label">Rollback Time</div>
+                    <div class="result-detail">New capability</div>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <h3>Before vs After Comparison</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Before</th>
+                            <th>After</th>
+                            <th>Improvement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Provisioning Time</td>
+                            <td>2-3 days</td>
+                            <td>4 hours</td>
+                            <td class="positive">70% faster</td>
+                        </tr>
+                        <tr>
+                            <td>Error Rate</td>
+                            <td>15%</td>
+                            <td>0%</td>
+                            <td class="positive">100% reduction</td>
+                        </tr>
+                        <tr>
+                            <td>Consistency</td>
+                            <td>60%</td>
+                            <td>100%</td>
+                            <td class="positive">40% improvement</td>
+                        </tr>
+                        <tr>
+                            <td>Cost per Deploy</td>
+                            <td>$1,200</td>
+                            <td>$100</td>
+                            <td class="positive">92% reduction</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lessons Learned -->
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-graduation-cap"></i> Lessons Learned</h2>
+            
+            <div class="lessons-grid">
+                <div class="lesson-card success">
+                    <h3><i class="fas fa-check"></i> What Worked Well</h3>
+                    <ul>
+                        <li>Modular design enabled reusability</li>
+                        <li>Remote state prevented conflicts</li>
+                        <li>Incremental approach reduced risk</li>
+                        <li>Comprehensive testing caught issues early</li>
+                    </ul>
+                </div>
+                <div class="lesson-card challenge">
+                    <h3><i class="fas fa-exclamation"></i> Challenges Faced</h3>
+                    <ul>
+                        <li>Team learning curve (solved with training)</li>
+                        <li>Initial state corruption (fixed with locking)</li>
+                        <li>Importing existing resources (used terraform import)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="best-practices">
+                <h3>Best Practices Established</h3>
+                <div class="practices-list">
+                    <div class="practice-item">
+                        <i class="fas fa-folder-tree"></i>
+                        <span>Organized module structure</span>
+                    </div>
+                    <div class="practice-item">
+                        <i class="fas fa-tag"></i>
+                        <span>Consistent naming conventions</span>
+                    </div>
+                    <div class="practice-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Comprehensive tagging strategy</span>
+                    </div>
+                    <div class="practice-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span>Peer review for production</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="case-study-cta">
+        <div class="container">
+            <h2>Interested in the Implementation?</h2>
+            <p>View the complete Terraform code and documentation</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/jaitnsongara/devops-portfolio/tree/main/terraform" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View Code
+                </a>
+                <a href="case-studies.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> More Case Studies
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Jatin Songara. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

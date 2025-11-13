@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Case Study | DevOps Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">Jatin Songara</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="case-studies.html">Case Studies</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="case-study-header">
+        <div class="container">
+            <a href="case-studies.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="case-study-badge">Container Orchestration</span>
+            <h1>Kubernetes Microservices Platform</h1>
+            <p class="case-study-subtitle">Achieving 99.9% uptime with auto-scaling microservices</p>
+            
+            <div class="case-study-meta">
+                <div class="meta-item"><i class="fas fa-calendar"></i><span>Duration: 8 weeks</span></div>
+                <div class="meta-item"><i class="fas fa-users"></i><span>Team: 1 DevOps, 5 Developers</span></div>
+                <div class="meta-item"><i class="fas fa-code"></i><span>Kubernetes, Docker, Helm, GKE</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <div class="summary-box">
+                <h2>Executive Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Challenge</h3>
+                        <p>Monolithic app couldn't scale, 4-hour deployments with downtime, manual scaling</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Solution</h3>
+                        <p>Kubernetes microservices with auto-scaling and zero-downtime deployments</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Result</h3>
+                        <p>99.9% uptime, handles 10x traffic, 5-minute deployments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-project-diagram"></i> Architecture Evolution</h2>
+            
+            <div class="architecture-comparison">
+                <div class="arch-before">
+                    <h3>Before: Monolithic</h3>
+                    <div class="diagram-box">
+                        <pre class="architecture-ascii">
+┌─────────────────────┐
+│   Load Balancer     │
+└──────────┬──────────┘
+           │
+    ┌──────┴──────┐
+    │             │
+┌───▼───┐     ┌───▼───┐
+│ VM 1  │     │ VM 2  │
+│       │     │       │
+│[Mono] │     │[Mono] │
+│[lith] │     │[lith] │
+└───────┘     └───────┘
+                        </pre>
+                    </div>
+                    <div class="arch-issues">
+                        <p><i class="fas fa-times"></i> Can't scale individual components</p>
+                        <p><i class="fas fa-times"></i> Downtime during deployments</p>
+                        <p><i class="fas fa-times"></i> Resource waste</p>
+                    </div>
+                </div>
+
+                <div class="arch-after">
+                    <h3>After: Kubernetes Microservices</h3>
+                    <div class="diagram-box">
+                        <pre class="architecture-ascii">
+┌────────────────────────────────┐
+│    Ingress (NGINX + SSL)       │
+└───────────┬────────────────────┘
+            │
+    ┌───────┼───────┐
+    │       │       │
+┌───▼──┐ ┌──▼──┐ ┌──▼──┐
+│Front │ │Back │ │ DB  │
+│end   │ │end  │ │     │
+│3-10  │ │3-10 │ │ 3   │
+│pods  │ │pods │ │pods │
+└──────┘ └─────┘ └─────┘
+  HPA      HPA    StatefulSet
+                        </pre>
+                    </div>
+                    <div class="arch-benefits">
+                        <p><i class="fas fa-check"></i> Independent scaling</p>
+                        <p><i class="fas fa-check"></i> Zero-downtime updates</p>
+                        <p><i class="fas fa-check"></i> Efficient resources</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <h2><i class="fas fa-cogs"></i> Key Implementation</h2>
+            
+            <div class="code-example">
+                <h3>Horizontal Pod Autoscaler</h3>
+                <pre><code>apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-api-hpa
+spec:
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        averageUtilization: 80</code></pre>
+            </div>
+
+            <div class="implementation-highlights">
+                <h3>Auto-Scaling Logic</h3>
+                <ul>
+                    <li>Scale up when CPU > 70% or Memory > 80%</li>
+                    <li>Scale up by 50% of current pods</li>
+                    <li>Scale down gradually (1 pod per minute)</li>
+                    <li>Wait 5 minutes before scaling down (avoid flapping)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-chart-bar"></i> Results & Impact</h2>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="result-value">99.9%</div>
+                    <div class="result-label">Uptime</div>
+                    <div class="result-detail">From 95%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-expand"></i></div>
+                    <div class="result-value">10x</div>
+                    <div class="result-label">Traffic Handling</div>
+                    <div class="result-detail">Automatic scaling</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-clock"></i></div>
+                    <div class="result-value">5 min</div>
+                    <div class="result-label">Deployment</div>
+                    <div class="result-detail">From 4 hours</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="result-value">60%</div>
+                    <div class="result-label">Cost Reduction</div>
+                    <div class="result-detail">Efficient scaling</div>
+                </div>
+            </div>
+
+            <div class="traffic-test">
+                <h3>Black Friday Traffic Test</h3>
+                <div class="test-results">
+                    <div class="test-metric">
+                        <span class="test-label">Normal Traffic</span>
+                        <span class="test-value">1,000 req/sec</span>
+                    </div>
+                    <div class="test-metric">
+                        <span class="test-label">Peak Traffic</span>
+                        <span class="test-value">10,000 req/sec</span>
+                    </div>
+                    <div class="test-metric">
+                        <span class="test-label">Response Time</span>
+                        <span class="test-value">&lt; 200ms</span>
+                    </div>
+                    <div class="test-metric">
+                        <span class="test-label">Error Rate</span>
+                        <span class="test-value">0.01%</span>
+                    </div>
+                    <div class="test-metric">
+                        <span class="test-label">Auto-Scaling</span>
+                        <span class="test-value">3 → 10 pods</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-cta">
+        <div class="container">
+            <h2>View the Implementation</h2>
+            <p>Complete Kubernetes manifests, Helm charts, and monitoring setup</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/jaitnsongara/devops-portfolio/tree/main/kubernetes" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View Code
+                </a>
+                <a href="case-studies.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> More Case Studies
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Jatin Songara. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

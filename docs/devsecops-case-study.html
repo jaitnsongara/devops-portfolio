@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSecOps Case Study | DevOps Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">Jatin Songara</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="case-studies.html">Case Studies</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="case-study-header">
+        <div class="container">
+            <a href="case-studies.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="case-study-badge">Security Automation</span>
+            <h1>DevSecOps Security Automation</h1>
+            <p class="case-study-subtitle">Reducing vulnerabilities by 85% with shift-left security</p>
+            
+            <div class="case-study-meta">
+                <div class="meta-item"><i class="fas fa-calendar"></i><span>Duration: 4 weeks</span></div>
+                <div class="meta-item"><i class="fas fa-users"></i><span>Team: 1 DevOps, 3 Developers</span></div>
+                <div class="meta-item"><i class="fas fa-code"></i><span>Trivy, SonarQube, OWASP</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <div class="summary-box">
+                <h2>Executive Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Challenge</h3>
+                        <p>Security vulnerabilities discovered in production, manual reviews, no visibility</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Solution</h3>
+                        <p>Automated security scanning pipeline with shift-left approach</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Result</h3>
+                        <p>85% fewer vulnerabilities, 100% scan coverage, early issue detection</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-shield-alt"></i> Security Pipeline Architecture</h2>
+            
+            <div class="security-flow">
+                <div class="security-layer">
+                    <h3><i class="fas fa-code"></i> Code Level</h3>
+                    <div class="security-checks">
+                        <div class="check-item">
+                            <i class="fas fa-search"></i>
+                            <span>SAST (SonarQube)</span>
+                        </div>
+                        <div class="check-item">
+                            <i class="fas fa-key"></i>
+                            <span>Secret Detection</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-layer">
+                    <h3><i class="fas fa-cube"></i> Dependencies</h3>
+                    <div class="security-checks">
+                        <div class="check-item">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>npm audit</span>
+                        </div>
+                        <div class="check-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Snyk scanning</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-layer">
+                    <h3><i class="fab fa-docker"></i> Container</h3>
+                    <div class="security-checks">
+                        <div class="check-item">
+                            <i class="fas fa-bug"></i>
+                            <span>Trivy scanning</span>
+                        </div>
+                        <div class="check-item">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Base image check</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-layer">
+                    <h3><i class="fas fa-cloud"></i> Infrastructure</h3>
+                    <div class="security-checks">
+                        <div class="check-item">
+                            <i class="fas fa-cog"></i>
+                            <span>tfsec (Terraform)</span>
+                        </div>
+                        <div class="check-item">
+                            <i class="fas fa-file-code"></i>
+                            <span>K8s manifest scan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shift-left-diagram">
+                <h3>Shift-Left Security Approach</h3>
+                <div class="shift-left-flow">
+                    <div class="shift-stage early">
+                        <h4>Early Detection</h4>
+                        <p>Find issues in development</p>
+                        <span class="cost-label">Cost: $1 to fix</span>
+                    </div>
+                    <div class="shift-arrow">→</div>
+                    <div class="shift-stage middle">
+                        <h4>Testing Phase</h4>
+                        <p>Catch in CI/CD pipeline</p>
+                        <span class="cost-label">Cost: $10 to fix</span>
+                    </div>
+                    <div class="shift-arrow">→</div>
+                    <div class="shift-stage late">
+                        <h4>Production</h4>
+                        <p>Expensive to fix</p>
+                        <span class="cost-label">Cost: $100+ to fix</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <h2><i class="fas fa-code"></i> Implementation Example</h2>
+            
+            <div class="code-example">
+                <h3>Comprehensive Security Scanning Script</h3>
+                <pre><code>#!/bin/bash
+# Trivy security scanning automation
+
+# Scan filesystem for vulnerabilities
+trivy fs --severity HIGH,CRITICAL \
+    --format json \
+    --output filesystem-report.json .
+
+# Scan Docker image
+trivy image --severity HIGH,CRITICAL \
+    --format json \
+    --output image-report.json app:latest
+
+# Scan Infrastructure as Code
+trivy config --severity HIGH,CRITICAL \
+    --format json \
+    --output iac-report.json terraform/
+
+# Generate summary report
+echo "Security Scan Complete"
+echo "Reports generated: filesystem, image, iac"
+echo "Review reports for vulnerabilities"</code></pre>
+            </div>
+
+            <div class="scanning-results">
+                <h3>Scanning Coverage</h3>
+                <div class="coverage-grid">
+                    <div class="coverage-item">
+                        <i class="fas fa-file-code"></i>
+                        <h4>Source Code</h4>
+                        <p>SAST, secret detection, code quality</p>
+                        <span class="coverage-percent">100%</span>
+                    </div>
+                    <div class="coverage-item">
+                        <i class="fas fa-cube"></i>
+                        <h4>Dependencies</h4>
+                        <p>Known vulnerabilities, license check</p>
+                        <span class="coverage-percent">100%</span>
+                    </div>
+                    <div class="coverage-item">
+                        <i class="fab fa-docker"></i>
+                        <h4>Containers</h4>
+                        <p>Base images, OS packages, configs</p>
+                        <span class="coverage-percent">100%</span>
+                    </div>
+                    <div class="coverage-item">
+                        <i class="fas fa-cloud"></i>
+                        <h4>Infrastructure</h4>
+                        <p>Terraform, K8s manifests, policies</p>
+                        <span class="coverage-percent">100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-chart-line"></i> Security Improvement</h2>
+            
+            <div class="security-metrics">
+                <div class="security-before-after">
+                    <div class="security-before">
+                        <h3>Before Implementation</h3>
+                        <div class="vuln-chart">
+                            <div class="vuln-bar critical" style="width: 80%">
+                                <span>Critical: 12</span>
+                            </div>
+                            <div class="vuln-bar high" style="width: 90%">
+                                <span>High: 28</span>
+                            </div>
+                            <div class="vuln-bar medium" style="width: 100%">
+                                <span>Medium: 45</span>
+                            </div>
+                        </div>
+                        <p class="total-vulns">Total: 85 vulnerabilities</p>
+                    </div>
+                    
+                    <div class="security-after">
+                        <h3>After Implementation</h3>
+                        <div class="vuln-chart">
+                            <div class="vuln-bar critical" style="width: 0%">
+                                <span>Critical: 0</span>
+                            </div>
+                            <div class="vuln-bar high" style="width: 10%">
+                                <span>High: 3</span>
+                            </div>
+                            <div class="vuln-bar medium" style="width: 25%">
+                                <span>Medium: 10</span>
+                            </div>
+                        </div>
+                        <p class="total-vulns">Total: 13 vulnerabilities</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-achievements">
+                <h3>Key Security Achievements</h3>
+                <div class="achievement-grid">
+                    <div class="achievement-item">
+                        <i class="fas fa-check-circle"></i>
+                        <h4>Zero Critical Vulnerabilities</h4>
+                        <p>All critical issues resolved within 24 hours</p>
+                    </div>
+                    <div class="achievement-item">
+                        <i class="fas fa-clock"></i>
+                        <h4>Early Detection</h4>
+                        <p>Issues caught in development, not production</p>
+                    </div>
+                    <div class="achievement-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Compliance Ready</h4>
+                        <p>SOC 2 and ISO 27001 compliant processes</p>
+                    </div>
+                    <div class="achievement-item">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Continuous Monitoring</h4>
+                        <p>Real-time security posture visibility</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-cta">
+        <div class="container">
+            <h2>Explore Security Implementation</h2>
+            <p>View the complete security scanning scripts and pipeline configuration</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/jaitnsongara/devops-portfolio" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View Implementation
+                </a>
+                <a href="case-studies.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> More Case Studies
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Jatin Songara. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

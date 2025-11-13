@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Pipeline Case Study | DevOps Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">Jatin Songara</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="case-studies.html">Case Studies</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="case-study-header">
+        <div class="container">
+            <a href="case-studies.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+            <span class="case-study-badge">CI/CD Automation</span>
+            <h1>Complete CI/CD Pipeline Implementation</h1>
+            <p class="case-study-subtitle">Reducing deployment time from 4 hours to 5 minutes</p>
+            
+            <div class="case-study-meta">
+                <div class="meta-item"><i class="fas fa-calendar"></i><span>Duration: 6 weeks</span></div>
+                <div class="meta-item"><i class="fas fa-users"></i><span>Team: 1 DevOps, 4 Developers</span></div>
+                <div class="meta-item"><i class="fas fa-code"></i><span>Jenkins, Docker, Kubernetes</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <div class="summary-box">
+                <h2>Executive Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Challenge</h3>
+                        <p>Manual deployments taking 4+ hours, no automated testing, frequent production issues</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Solution</h3>
+                        <p>End-to-end CI/CD pipeline with testing, security scanning, and automated deployment</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Result</h3>
+                        <p>95% faster deployments, zero incidents in 6 months, 3x deployment frequency</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-sitemap"></i> Pipeline Architecture</h2>
+            
+            <div class="pipeline-flow">
+                <div class="pipeline-stage">
+                    <div class="stage-icon"><i class="fab fa-git-alt"></i></div>
+                    <h3>Source</h3>
+                    <p>Git Push Trigger</p>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon"><i class="fas fa-vial"></i></div>
+                    <h3>Test</h3>
+                    <p>Unit, Integration, E2E</p>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Security</h3>
+                    <p>SAST, Dependency, Container</p>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon"><i class="fab fa-docker"></i></div>
+                    <h3>Build</h3>
+                    <p>Docker Image</p>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-stage">
+                    <div class="stage-icon"><i class="fas fa-rocket"></i></div>
+                    <h3>Deploy</h3>
+                    <p>Kubernetes</p>
+                </div>
+            </div>
+
+            <div class="pipeline-details">
+                <h3>Pipeline Stages Breakdown</h3>
+                <div class="stage-details">
+                    <div class="stage-detail">
+                        <h4><i class="fas fa-vial"></i> Testing Stage</h4>
+                        <ul>
+                            <li>Unit tests with Jest (80%+ coverage)</li>
+                            <li>Integration tests with Supertest</li>
+                            <li>End-to-end tests with Cypress</li>
+                            <li>Parallel execution for speed</li>
+                        </ul>
+                    </div>
+                    <div class="stage-detail">
+                        <h4><i class="fas fa-shield-alt"></i> Security Stage</h4>
+                        <ul>
+                            <li>SAST with SonarQube</li>
+                            <li>Dependency scanning (npm audit)</li>
+                            <li>Container scanning with Trivy</li>
+                            <li>Policy enforcement with OPA</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section">
+        <div class="container-narrow">
+            <h2><i class="fas fa-code"></i> Key Implementation</h2>
+            
+            <div class="code-example">
+                <h3>Jenkins Pipeline (Groovy)</h3>
+                <pre><code>pipeline {
+    agent any
+    
+    stages {
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'npm test -- --coverage'
+                    }
+                }
+                stage('Security Scan') {
+                    steps {
+                        sh 'trivy image app:latest'
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                sh 'kubectl set image deployment/app app=app:${BUILD_NUMBER}'
+                sh 'kubectl rollout status deployment/app'
+            }
+        }
+    }
+    
+    post {
+        failure {
+            sh 'kubectl rollout undo deployment/app'
+        }
+    }
+}</code></pre>
+            </div>
+
+            <div class="deployment-strategy">
+                <h3>Zero-Downtime Deployment Strategy</h3>
+                <div class="strategy-steps">
+                    <div class="strategy-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Rolling Update</h4>
+                            <p>Deploy new version gradually, one pod at a time</p>
+                        </div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Health Checks</h4>
+                            <p>Verify each pod is healthy before proceeding</p>
+                        </div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Smoke Tests</h4>
+                            <p>Automated tests verify deployment success</p>
+                        </div>
+                    </div>
+                    <div class="strategy-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Auto Rollback</h4>
+                            <p>Automatic rollback if any step fails</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-section bg-dark">
+        <div class="container-narrow">
+            <h2><i class="fas fa-trophy"></i> Results</h2>
+            
+            <div class="results-comparison">
+                <div class="before-after">
+                    <div class="before">
+                        <h3>Before</h3>
+                        <div class="metric-list">
+                            <div class="metric-item negative">
+                                <span class="metric-label">Deployment Time</span>
+                                <span class="metric-value">4+ hours</span>
+                            </div>
+                            <div class="metric-item negative">
+                                <span class="metric-label">Deployment Frequency</span>
+                                <span class="metric-value">2 per month</span>
+                            </div>
+                            <div class="metric-item negative">
+                                <span class="metric-label">Production Issues</span>
+                                <span class="metric-value">15% failure rate</span>
+                            </div>
+                            <div class="metric-item negative">
+                                <span class="metric-label">Rollback Time</span>
+                                <span class="metric-value">2+ hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="after">
+                        <h3>After</h3>
+                        <div class="metric-list">
+                            <div class="metric-item positive">
+                                <span class="metric-label">Deployment Time</span>
+                                <span class="metric-value">5 minutes</span>
+                            </div>
+                            <div class="metric-item positive">
+                                <span class="metric-label">Deployment Frequency</span>
+                                <span class="metric-value">20+ per month</span>
+                            </div>
+                            <div class="metric-item positive">
+                                <span class="metric-label">Production Issues</span>
+                                <span class="metric-value">0% (6 months)</span>
+                            </div>
+                            <div class="metric-item positive">
+                                <span class="metric-label">Rollback Time</span>
+                                <span class="metric-value">30 seconds</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="case-study-cta">
+        <div class="container">
+            <h2>Explore the Pipeline</h2>
+            <p>View the complete Jenkins pipeline configuration and GitLab CI/CD setup</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/jaitnsongara/devops-portfolio" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View Implementation
+                </a>
+                <a href="case-studies.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> More Case Studies
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Jatin Songara. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
